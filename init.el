@@ -8,6 +8,13 @@
 	lsp-python
 	use-package
 	session
+	helm
+	powerline
+	spaceline
+	eyebrowse
+	persp-mode
+	all-the-icons
+	spaceline-all-the-icons
 	)
       )
 
@@ -51,10 +58,12 @@
       "3" 'split-window-right)
     (evil-leader/set-leader "<SPC>")
     (global-evil-leader-mode))
-
+  ;; https://www.emacswiki.org/emacs/YesOrNoP
+  (defalias 'yes-or-no-p 'y-or-n-p) 
   ;; Both native (>= OSX 10.7) and "old style" fullscreen are supported. Customize `ns-use-native-fullscreen' to change style. For >= 10.7 native is the default.
   (setq ns-use-native-fullscreen nil)
   (global-set-key (kbd "C-x RET") `toggle-frame-fullscreen)
+  (global-set-key (kbd "C-<tab>") `other-window)
   (setup-meta-key-issue))
 
 
@@ -71,28 +80,62 @@
     (evil-mode 1))
 
   (use-package company
-    :init
+    :config
     (require 'company-lsp)
     (push 'company-lsp company-backends)
     (add-hook 'after-init-hook 'global-company-mode))
 
   (use-package lsp-python
-    :init
+    :config
     (add-hook 'python-mode-hook #'lsp-python-enable))
 
-  (use-package session
+  (use-package eyebrowse
     :init
+    (eyebrowse-mode t)
+    )
+  (use-package persp-mode
+    :init
+    (persp-mode t)
+    )
+  (use-package session
+    :config
     (add-hook 'after-init-hook 'session-initialize))
   )
 
 
 (defun setup-interface ()
-  (desktop-save-mode 1)
+  ;;(desktop-save-mode 1)
   (scroll-bar-mode -1)
   (menu-bar-mode 0)
   (show-paren-mode t)
   (tool-bar-mode 0)
-  (tooltip-mode 0))
+  (tooltip-mode 0)
+  (global-visual-line-mode 1)
+  (global-linum-mode 1)
+  (use-package spaceline
+    :config
+    (setq ns-use-srgb-colorspace nil)
+    (setq spaceline-responsive nil)
+     )
+
+  (use-package spaceline-all-the-icons 
+    :after
+    spaceline
+    :config
+    (setq powerline-scale 1)
+    :init
+    (set-face-attribute 'mode-line nil  :height 130)
+    (spaceline-all-the-icons-theme))
+
+  (use-package helm
+    :after spaceline
+    :init
+    (helm-mode 1)
+    (spaceline-helm-mode)
+    :config
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    )
+  )
 
 
 (defun init ()
@@ -103,5 +146,20 @@
   (setup-interface)
   )
 
-
 (init)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(display-time-mode t)
+ '(menu-bar-mode nil)
+ '(session-use-package t nil (session))
+ '(show-paren-mode t)
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
