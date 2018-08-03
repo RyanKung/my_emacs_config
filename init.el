@@ -5,7 +5,11 @@
 	dracula-theme
 	lsp-mode
 	company-lsp
-	use-package))
+	lsp-python
+	use-package
+	session
+	)
+      )
 
 
 (defun setup-package-manager ()
@@ -21,6 +25,7 @@
     (unless (package-installed-p package)
       (package-install package))))
 
+
 (defun setup-meta-key-issue ()
   ;; ref: `https://www.emacswiki.org/emacs/MetaKeyProblems`
   ;; mapping osx's command key to meta key.
@@ -28,6 +33,7 @@
   (setq mac-command-key-is-meta t)
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier nil))
+
 
 (defun setup-keymapping ()
   ;; setup basic keymapping.
@@ -49,8 +55,8 @@
   ;; Both native (>= OSX 10.7) and "old style" fullscreen are supported. Customize `ns-use-native-fullscreen' to change style. For >= 10.7 native is the default.
   (setq ns-use-native-fullscreen nil)
   (global-set-key (kbd "C-x RET") `toggle-frame-fullscreen)
-
   (setup-meta-key-issue))
+
 
 (defun setup-used-packages ()
   ;; ref: https://github.com/CachesToCaches/getting_started_with_use_package/blob/master/init-use-package.el
@@ -69,14 +75,25 @@
     (require 'company-lsp)
     (push 'company-lsp company-backends)
     (add-hook 'after-init-hook 'global-company-mode))
+
+  (use-package lsp-python
+    :init
+    (add-hook 'python-mode-hook #'lsp-python-enable))
+
+  (use-package session
+    :init
+    (add-hook 'after-init-hook 'session-initialize))
   )
 
+
 (defun setup-interface ()
+  (desktop-save-mode 1)
   (scroll-bar-mode -1)
   (menu-bar-mode 0)
   (show-paren-mode t)
   (tool-bar-mode 0)
   (tooltip-mode 0))
+
 
 (defun init ()
   ;; init scripts.
@@ -85,5 +102,6 @@
   (setup-keymapping)
   (setup-interface)
   )
+
 
 (init)
