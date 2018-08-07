@@ -1,6 +1,11 @@
-(setq package-selected-packages 
+;;; Package -- init.el
+;;; Commentary:
+;;; Code:
+
+(setq package-selected-packages
       '(evil
 	evil-leader
+	popwin
 	exec-path-from-shell
 	nyan-mode
 	zone-nyan
@@ -23,13 +28,14 @@
 	;; rust
 	rust-mode
 	lsp-rust
-	flymake-rust
+	flycheck-rust
+	flycheck-pos-tip
 	)
       )
 
 
 (defun setup-package-manager ()
-  ;; setup package manager
+  "Setup package manager."
   (setq package-archives
 	'(("gnu" . "https://elpa.gnu.org/packages/")
           ("marmalade" . "https://marmalade-repo.org/packages/")
@@ -43,8 +49,8 @@
 
 
 (defun setup-meta-key-issue ()
-  ;; ref: `https://www.emacswiki.org/emacs/MetaKeyProblems`
-  ;; mapping osx's command key to meta key.
+  "Ref: `https://www.emacswiki.org/emacs/MetaKeyProblems` \
+mapping osx's command key to meta key."
   (setq mac-option-key-is-meta nil)
   (setq mac-command-key-is-meta t)
   (setq mac-command-modifier 'meta)
@@ -52,7 +58,7 @@
 
 
 (defun setup-keymapping ()
-  ;; setup basic keymapping.
+  "Setup basic keymapping."
   (use-package evil-leader
     :init
     (evil-leader/set-key
@@ -68,7 +74,7 @@
     (evil-leader/set-leader "<SPC>")
     (global-evil-leader-mode))
   ;; https://www.emacswiki.org/emacs/YesOrNoP
-  (defalias 'yes-or-no-p 'y-or-n-p) 
+  (defalias 'yes-or-no-p 'y-or-n-p)
   ;; Both native (>= OSX 10.7) and "old style" fullscreen are supported. Customize `ns-use-native-fullscreen' to change style. For >= 10.7 native is the default.
   (setq ns-use-native-fullscreen nil)
   (global-set-key (kbd "C-x RET") `toggle-frame-fullscreen)
@@ -77,9 +83,26 @@
 
 
 (defun setup-common-packages ()
-  ;; ref: https://github.com/CachesToCaches/getting_started_with_use_package/blob/master/init-use-package.el
+  "Ref: `https://github.com/CachesToCaches/getting_started_with_use_package/blob/master/init-use-package.el`."
   (eval-when-compile
     (require 'use-package))
+
+  (use-package exec-path-from-shell
+    :init
+    (exec-path-from-shell-initialize))
+
+  (use-package popwin
+    :init
+;;    (popwin-mode 1)
+    )
+
+  (use-package flycheck
+    :init
+    (global-flycheck-mode))
+
+  (use-package flycheck-pos-tip
+    :init
+    (flycheck-pos-tip-mode))
 
   (use-package dracula-theme
     :init
@@ -113,7 +136,6 @@
 
 
 (defun setup-interface ()
-  ;;(desktop-save-mode 1)
   (setq ring-bell-function 'ignore)
   (scroll-bar-mode -1)
   (menu-bar-mode 0)
@@ -121,11 +143,18 @@
   (tool-bar-mode 0)
   (tooltip-mode 0)
   (global-visual-line-mode 1)
+  (global-prettify-symbols-mode)
+  (global-visual-line-mode 1)
   (use-package spaceline
     :config
     (setq ns-use-srgb-colorspace nil)
     (setq spaceline-responsive nil)
-     )
+    )
+
+  (use-package undo-tree
+    :init
+    (global-undo-tree-mode)
+    )
 
   (use-package neotree
     :config
@@ -133,10 +162,11 @@
     (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
     (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
     (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
-    (setq neo-theme 'icons)
+    (setq neo-smart-open t)
+    (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
     )
 
-  (use-package spaceline-all-the-icons 
+  (use-package spaceline-all-the-icons
     :after
     spaceline
     :config
@@ -144,6 +174,14 @@
     :init
     (set-face-attribute 'mode-line nil  :height 120)
     (spaceline-all-the-icons-theme))
+
+  (use-package ido
+    :config
+    (setq ido-enable-flex-matching t)
+    (setq ido-everywhere t)
+    (setq ido-use-filename-at-point 'guess)
+    (ido-mode 1)
+    (global-set-key (kbd "C-x C-f") 'ido-find-file))
 
   (use-package helm
     :after spaceline
@@ -177,7 +215,8 @@
   )
 
 (defun setup-langs ()
-  (use-package flymake-rust)
+  "Setup langauge env."
+  (use-package flycheck-rust)
   (use-package rust-mode
     :hook
     (flymake-rust-load)
@@ -187,9 +226,7 @@
     
 
 (defun init ()
-  ;; init scripts.
-;; fixed osx path issue
-  (exec-path-from-shell-initialize)
+  "Init scripts."
   (setup-package-manager)
   (setup-common-packages)
   (setup-keymapping)
@@ -198,3 +235,5 @@
  )
 
 (init)
+(provide 'init)
+;;; init.el ends here
