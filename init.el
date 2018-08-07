@@ -26,13 +26,14 @@
 	persp-mode
 	all-the-icons
 	spaceline-all-the-icons
-	nlinum
-	nlinum-relative
+	linum
+	linum-relative
 	rust-mode
 	lsp-rust
 	flycheck-rust
 	flycheck-pos-tip
 	imenu-list
+	minimap
 	)
       )
 
@@ -41,8 +42,8 @@
   "Setup package manager."
   (setq package-archives
 	'(("gnu" . "https://elpa.gnu.org/packages/")
-          ("marmalade" . "https://marmalade-repo.org/packages/")
-          ("melpa" . "https://melpa.org/packages/")))
+	  ("marmalade" . "https://marmalade-repo.org/packages/")
+	  ("melpa" . "https://melpa.org/packages/")))
   (package-initialize)
   ;; install `required package
   ;; ref https://stackoverflow.com/questions/10092322/how-to-automatically-install-emacs-packages-by-specifying-a-list-of-package-name
@@ -207,20 +208,23 @@ mapping osx's command key to meta key."
     (global-set-key (kbd "M-i") 'helm-imenu)
     (global-set-key (kbd "M-x") 'helm-M-x))
 
-  (use-package nlinum-relative
+  (use-package minimap
+    :config
+     (global-set-key (kbd "M-m") 'minimap-mode)
+    )
+
+  (use-package linum-relative
     :after
     helm
     :config
     (set-face-foreground 'linum "SkyBlue2")
     (set-face-attribute 'linum nil :height 120)
     (setq linum-relative-current-symbol "")
-    (setq nlinum-relative-redisplay-delay 0)
-    (setq nlinum-format "%d ")
+    (setq linum-format "%d ")
     :init
     (global-hl-line-mode t)
-    (nlinum-relative-setup-evil) 
-    ;;    (global-nlinum-mode t)
-    (nlinum-relative-mode t))
+    (global-linum-mode)
+    (linum-relative-global-mode))
 
 
   (use-package nyan-mode
@@ -232,6 +236,8 @@ mapping osx's command key to meta key."
 
 (defun setup-langs ()
   "Setup langauge env."
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
   (use-package flycheck-rust)
   (use-package rust-mode
     :hook
@@ -239,7 +245,7 @@ mapping osx's command key to meta key."
     :config
     (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
   )
-    
+
 
 (defun init ()
   "Init scripts."
@@ -249,7 +255,21 @@ mapping osx's command key to meta key."
   (setup-interface)
   (setup-langs)
  )
-
 (init)
 (provide 'init)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (minimap evil evil-leader dumb-jump ctags popwin projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative rust-mode lsp-rust flycheck-rust flycheck-pos-tip imenu-list)))
+ '(session-use-package t nil (session)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
