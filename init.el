@@ -258,18 +258,3 @@ mapping osx's command key to meta key."
 (init)
 (provide 'init)
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (minimap evil evil-leader dumb-jump ctags popwin projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative rust-mode lsp-rust flycheck-rust flycheck-pos-tip imenu-list)))
- '(session-use-package t nil (session)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
