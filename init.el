@@ -1,6 +1,9 @@
 (setq package-selected-packages 
       '(evil
 	evil-leader
+	exec-path-from-shell
+	nyan-mode
+	zone-nyan
 	company
 	dracula-theme
 	lsp-mode
@@ -15,6 +18,12 @@
 	persp-mode
 	all-the-icons
 	spaceline-all-the-icons
+	nlinum
+	nlinum-relative
+	;; rust
+	rust-mode
+	lsp-rust
+	flymake-rust
 	)
       )
 
@@ -67,7 +76,7 @@
   (setup-meta-key-issue))
 
 
-(defun setup-used-packages ()
+(defun setup-common-packages ()
   ;; ref: https://github.com/CachesToCaches/getting_started_with_use_package/blob/master/init-use-package.el
   (eval-when-compile
     (require 'use-package))
@@ -105,18 +114,27 @@
 
 (defun setup-interface ()
   ;;(desktop-save-mode 1)
+  (setq ring-bell-function 'ignore)
   (scroll-bar-mode -1)
   (menu-bar-mode 0)
   (show-paren-mode t)
   (tool-bar-mode 0)
   (tooltip-mode 0)
   (global-visual-line-mode 1)
-  (global-linum-mode 1)
   (use-package spaceline
     :config
     (setq ns-use-srgb-colorspace nil)
     (setq spaceline-responsive nil)
      )
+
+  (use-package neotree
+    :config
+    (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+    (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
+    (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+    (setq neo-theme 'icons)
+    )
 
   (use-package spaceline-all-the-icons 
     :after
@@ -124,7 +142,7 @@
     :config
     (setq powerline-scale 1)
     :init
-    (set-face-attribute 'mode-line nil  :height 130)
+    (set-face-attribute 'mode-line nil  :height 120)
     (spaceline-all-the-icons-theme))
 
   (use-package helm
@@ -133,17 +151,50 @@
     (helm-mode 1)
     (spaceline-helm-mode)
     :config
-    (global-set-key (kbd "M-x") 'helm-M-x)
-    )
+    (global-set-key (kbd "M-x") 'helm-M-x))
+
+  (use-package nlinum-relative
+    :after
+    helm
+    :config
+    (set-face-foreground 'linum "SkyBlue2")
+    (set-face-attribute 'linum nil :height 120)
+    (setq linum-relative-current-symbol "")
+    (setq nlinum-relative-redisplay-delay 0)
+    (setq nlinum-format "%d ")
+    :init
+    (global-hl-line-mode t)
+    (nlinum-relative-setup-evil) 
+    ;;    (global-nlinum-mode t)
+    (nlinum-relative-mode t))
+
+
+  (use-package nyan-mode
+    :config
+    (setq nyan-wavy-trail t)
+    :init
+    (nyan-mode))
   )
 
+(defun setup-langs ()
+  (use-package flymake-rust)
+  (use-package rust-mode
+    :hook
+    (flymake-rust-load)
+    :config
+    (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+  )
+    
 
 (defun init ()
   ;; init scripts.
+;; fixed osx path issue
+  (exec-path-from-shell-initialize)
   (setup-package-manager)
-  (setup-used-packages)
+  (setup-common-packages)
   (setup-keymapping)
   (setup-interface)
-  )
+  (setup-langs)
+ )
 
 (init)
