@@ -28,11 +28,11 @@
 	spaceline-all-the-icons
 	nlinum
 	nlinum-relative
-	;; rust
 	rust-mode
 	lsp-rust
 	flycheck-rust
 	flycheck-pos-tip
+	imenu-list
 	)
       )
 
@@ -100,11 +100,11 @@ mapping osx's command key to meta key."
     )
 
   (use-package flycheck
-    :init
+    :config
     (global-flycheck-mode))
 
   (use-package flyspell
-    :init
+    :config
     (flyspell-mode-on)
     )
 
