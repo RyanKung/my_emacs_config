@@ -176,6 +176,7 @@ mapping osx's command key to meta key."
     (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
     (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
     (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+    (global-set-key (kbd "M-s") 'neotree-toggle)
     (setq neo-smart-open t)
     (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
     )
@@ -203,6 +204,7 @@ mapping osx's command key to meta key."
     (helm-mode 1)
     (spaceline-helm-mode)
     :config
+    (global-set-key (kbd "M-i") 'helm-imenu)
     (global-set-key (kbd "M-x") 'helm-M-x))
 
   (use-package nlinum-relative
