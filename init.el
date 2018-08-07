@@ -5,7 +5,10 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	dumb-jump
+	ctags
 	popwin
+	projectile
 	exec-path-from-shell
 	nyan-mode
 	zone-nyan
@@ -93,12 +96,19 @@ mapping osx's command key to meta key."
 
   (use-package popwin
     :init
-;;    (popwin-mode 1)
+    (popwin-mode 1)
     )
 
   (use-package flycheck
     :init
     (global-flycheck-mode))
+
+  (use-package flyspell
+    :init
+    (flyspell-mode-on)
+    )
+
+  (use-package projectile)
 
   (use-package flycheck-pos-tip
     :init
@@ -155,6 +165,10 @@ mapping osx's command key to meta key."
     :init
     (global-undo-tree-mode)
     )
+
+  (use-package dumb-jump
+    :init
+    (dumb-jump-mode))
 
   (use-package neotree
     :config
