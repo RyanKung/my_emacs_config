@@ -28,6 +28,7 @@
 	spaceline-all-the-icons
 	linum
 	linum-relative
+	linum-off
 	rust-mode
 	lsp-rust
 	flycheck-rust
@@ -212,6 +213,12 @@ mapping osx's command key to meta key."
     :config
      (global-set-key (kbd "M-m") 'minimap-mode)
     )
+  (use-package linum-off
+    :config
+    (setq linum-disabled-modes-list
+	  '(eshell-mode)
+	  ))
+
 
   (use-package linum-relative
     :after
@@ -222,9 +229,10 @@ mapping osx's command key to meta key."
     (setq linum-relative-current-symbol "")
     (setq linum-format "%d ")
     :init
+    (add-hook 'text-mode-hook 'linum-relative-mode)
+    (add-hook 'prog-mode-hook 'linum-relative-mode)
     (global-hl-line-mode t)
-    (global-linum-mode)
-    (linum-relative-global-mode))
+    )
 
 
   (use-package nyan-mode
