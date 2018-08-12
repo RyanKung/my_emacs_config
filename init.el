@@ -5,9 +5,9 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	ack
 	dumb-jump
 	ctags
-	popwin
 	projectile
 	exec-path-from-shell
 	nyan-mode
@@ -31,10 +31,21 @@
 	linum-off
 	rust-mode
 	lsp-rust
+	rust-playground
 	flycheck-rust
 	flycheck-pos-tip
 	imenu-list
 	minimap
+	elpy
+	jedi
+	pyenv-mode
+	markdown-mode+
+	markdown-preview-mode
+	latex-preview-pane
+	pandoc
+	pandoc-mode
+	load-theme-buffer-local
+	solarized-theme
 	)
       )
 
@@ -84,6 +95,7 @@ mapping osx's command key to meta key."
   (setq ns-use-native-fullscreen nil)
   (global-set-key (kbd "C-x RET") `toggle-frame-fullscreen)
   (global-set-key (kbd "C-<tab>") `other-window)
+  (global-set-key (kbd "C-x C-b") `ibuffer)
   (setup-meta-key-issue))
 
 
@@ -95,11 +107,6 @@ mapping osx's command key to meta key."
   (use-package exec-path-from-shell
     :init
     (exec-path-from-shell-initialize))
-
-  (use-package popwin
-    :init
-    (popwin-mode 1)
-    )
 
   (use-package flycheck
     :config
@@ -149,6 +156,8 @@ mapping osx's command key to meta key."
 
 (defun setup-interface ()
   (setq ring-bell-function 'ignore)
+  (add-to-list 'default-frame-alist '(height . 40))
+  (add-to-list 'default-frame-alist '(width . 160))
   (scroll-bar-mode -1)
   (menu-bar-mode 0)
   (show-paren-mode t)
@@ -227,12 +236,11 @@ mapping osx's command key to meta key."
     (set-face-foreground 'linum "SkyBlue2")
     (set-face-attribute 'linum nil :height 120)
     (setq linum-relative-current-symbol "")
-    (setq linum-format "%d ")
+    (setq linum-relative-format "%3s ")
     :init
     (add-hook 'text-mode-hook 'linum-relative-mode)
     (add-hook 'prog-mode-hook 'linum-relative-mode)
-    (global-hl-line-mode t)
-    )
+    (global-hl-line-mode t))
 
 
   (use-package nyan-mode
@@ -240,6 +248,11 @@ mapping osx's command key to meta key."
     (setq nyan-wavy-trail t)
     :init
     (nyan-mode))
+
+  (use-package load-theme-buffer-local
+    :config
+    (add-hook 'neotree-mode-hook (lambda nil (load-theme-buffer-local 'wombat (current-buffer))))
+    )
   )
 
 (defun setup-langs ()
@@ -252,8 +265,30 @@ mapping osx's command key to meta key."
     (flymake-rust-load)
     :config
     (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
-  )
 
+  (use-package elpy
+    :config
+    (add-to-list 'auto-mode-alist '("\\.py\\'" . elpy-mode))
+    (add-hook 'elpy-mode-hook pyenv-mode)
+    )
+
+    (use-package markdown-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.mkd\\'" . markdown-mode))
+    (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+    (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+    )
+
+    (use-package latex-preview-pane
+      :config
+      (add-hook 'latex-mode-hook 'latex-preview-pane)
+      )
+
+    (use-package markdown-preview-mode
+      :config
+      (setq browse-url-browser-function 'xwidget-webkit-browse-url)
+      )
+    )
 
 (defun init ()
   "Init scripts."
@@ -261,8 +296,24 @@ mapping osx's command key to meta key."
   (setup-common-packages)
   (setup-keymapping)
   (setup-interface)
-  (setup-langs)
- )
+  (setup-langs))
+
+
 (init)
 (provide 'init)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("aaffceb9b0f539b6ad6becb8e96a04f2140c8faa1de8039a343a4f1e009174fb" default)))
+ '(session-use-package t nil (session)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
