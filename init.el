@@ -6,6 +6,7 @@
       '(evil
 	evil-leader
 	ack
+	zone-matrix
 	dumb-jump
 	ctags
 	projectile
@@ -260,6 +261,10 @@ mapping osx's command key to meta key."
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   (use-package flycheck-rust)
+  (use-package lisp-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
+    )
   (use-package rust-mode
     :hook
     (flymake-rust-load)
@@ -268,8 +273,9 @@ mapping osx's command key to meta key."
 
   (use-package elpy
     :config
-    (add-to-list 'auto-mode-alist '("\\.py\\'" . elpy-mode))
-    (add-hook 'elpy-mode-hook pyenv-mode)
+    (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+    (add-hook 'python-mode-hook elpy-mode)
+    (add-hook 'python-mode-hook pyenv-mode)
     )
 
     (use-package markdown-mode
@@ -302,18 +308,3 @@ mapping osx's command key to meta key."
 (init)
 (provide 'init)
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("aaffceb9b0f539b6ad6becb8e96a04f2140c8faa1de8039a343a4f1e009174fb" default)))
- '(session-use-package t nil (session)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
