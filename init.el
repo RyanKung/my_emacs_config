@@ -44,10 +44,11 @@
 	rust-playground
 	flycheck-rust
 	flycheck-pos-tip
+	flycheck-pyflakes
+	flycheck-pycheckers
 	imenu-list
 	minimap
 	elpy
-	jedi
 	pyenv-mode
 	markdown-mode+
 	markdown-preview-mode
@@ -137,7 +138,13 @@ mapping osx's command key to meta key."
 
   (use-package flycheck
     :config
-    (global-flycheck-mode))
+    (global-flycheck-mode)
+    )
+
+  (use-package flycheck-pycheckers
+    :config
+    (add-hook 'flycheck-mode-hook #'flycheck-pycheckers-setup)
+    )
 
   (use-package flyspell
     :config
@@ -158,10 +165,11 @@ mapping osx's command key to meta key."
     (evil-mode 1))
 
   (use-package company
+    :init
+    (add-hook 'after-init-hook 'global-company-mode)
     :config
     (require 'company-lsp)
-    (push 'company-lsp company-backends)
-    (add-hook 'after-init-hook 'global-company-mode))
+    (push 'company-lsp company-backends))
 
   (use-package eyebrowse
     :init
@@ -291,22 +299,26 @@ mapping osx's command key to meta key."
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   (use-package flycheck-rust)
+
   (use-package lisp-mode
     :config
-    (add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode))
+    (add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
     )
+
   (use-package rust-mode
     :config
     (add-hook 'rust-mode-hook 'racer-mode))
 
   (use-package elpy
+    :init
+    (elpy-enable)
     :config
     (add-hook 'python-mode-hook 'elpy-mode)
     )
 
   (use-package lsp-python
     :config
-    (add-hook 'python-mode-hook 'lsp-python-enable)
+;;    (add-hook 'python-mode-hook 'lsp-python-enable)
     )
 
   (use-package lsp-ui
@@ -324,8 +336,6 @@ mapping osx's command key to meta key."
   (use-package virtualenv
     :config
     )
-
-
 
   (use-package company-jedi
     :config
@@ -369,3 +379,18 @@ mapping osx's command key to meta key."
 
 (init)
 (provide 'init)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (flycheck-pycheckers flycheck-pyflakes evil evil-leader multiple-cursors exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
+ '(session-use-package t nil (session)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
