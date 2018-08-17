@@ -5,6 +5,14 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	multiple-cursors
+        exwm
+	sr-speedbar
+	ecb
+	zoom
+	cedit
+	ace-jump-mode
+	el-get
 	ack
 	zone-matrix
 	dumb-jump
@@ -16,6 +24,7 @@
 	company
 	dracula-theme
 	lsp-mode
+	lsp-ui
 	company-lsp
 	lsp-python
 	use-package
@@ -47,12 +56,29 @@
 	pandoc-mode
 	load-theme-buffer-local
 	solarized-theme
+	virtualenvwrapper
+	virtualenv
+	company-jedi
+	writegood-mode
+	writeroom-mode
+	racer
+	company-racer
 	)
       )
 
 
+(defun custom-packages ()
+  "Setup comtom define packages."
+  (el-get-bundle rate-sx
+    :url "https://github.com/davep/rate-sx.el.git"
+    )
+  )
+
+
 (defun setup-package-manager ()
   "Setup package manager."
+  ;; support el-get
+  (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
   (setq package-archives
 	'(("gnu" . "https://elpa.gnu.org/packages/")
 	  ("marmalade" . "https://marmalade-repo.org/packages/")
@@ -137,10 +163,6 @@ mapping osx's command key to meta key."
     (push 'company-lsp company-backends)
     (add-hook 'after-init-hook 'global-company-mode))
 
-  (use-package lsp-python
-    :config
-    (add-hook 'python-mode-hook #'lsp-python-enable))
-
   (use-package eyebrowse
     :init
     (eyebrowse-mode t)
@@ -157,6 +179,7 @@ mapping osx's command key to meta key."
 
 (defun setup-interface ()
   (setq ring-bell-function 'ignore)
+  (zoom-mode t)
   (add-to-list 'default-frame-alist '(height . 40))
   (add-to-list 'default-frame-alist '(width . 160))
   (scroll-bar-mode -1)
@@ -176,6 +199,11 @@ mapping osx's command key to meta key."
   (use-package undo-tree
     :init
     (global-undo-tree-mode)
+    )
+
+  (use-package ace-jump-mode
+    :init
+    (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
     )
 
   (use-package dumb-jump
@@ -201,6 +229,8 @@ mapping osx's command key to meta key."
     :init
     (set-face-attribute 'mode-line nil  :height 120)
     (spaceline-all-the-icons-theme))
+
+  (use-package ecb)
 
   (use-package ido
     :config
@@ -263,20 +293,45 @@ mapping osx's command key to meta key."
   (use-package flycheck-rust)
   (use-package lisp-mode
     :config
-    (add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
+    (add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode))
     )
   (use-package rust-mode
-    :hook
-    (flymake-rust-load)
     :config
-    (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+    (add-hook 'rust-mode-hook 'racer-mode))
 
   (use-package elpy
     :config
-    (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-    (add-hook 'python-mode-hook elpy-mode)
-    (add-hook 'python-mode-hook pyenv-mode)
+    (add-hook 'python-mode-hook 'elpy-mode)
     )
+
+  (use-package lsp-python
+    :config
+    (add-hook 'python-mode-hook 'lsp-python-enable)
+    )
+
+  (use-package lsp-ui
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    )
+
+  (use-package virtualenvwrapper
+    :config
+    (venv-initialize-interactive-shells)
+    (venv-initialize-eshell)
+    (setq venv-location "/Users/ryan/Envs")
+    )
+
+  (use-package virtualenv
+    :config
+    )
+
+
+
+  (use-package company-jedi
+    :config
+    (add-to-list 'company-backends 'company-jedi)
+    )
+
 
     (use-package markdown-mode
     :config
@@ -294,6 +349,13 @@ mapping osx's command key to meta key."
       :config
       (setq browse-url-browser-function 'xwidget-webkit-browse-url)
       )
+    (use-package writegood-mode
+      :config
+      (add-hook 'markdown-mode-hook writegood-mode)
+      (add-hook 'org-mode-hook writegood-mode)
+      (add-hook 'latex-mode-hook writegood-mode)
+      (add-hook 'writeroom-mode writegood-mode)
+      )
     )
 
 (defun init ()
@@ -307,4 +369,3 @@ mapping osx's command key to meta key."
 
 (init)
 (provide 'init)
-;;; init.el ends here
