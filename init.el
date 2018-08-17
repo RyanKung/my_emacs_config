@@ -187,7 +187,7 @@ mapping osx's command key to meta key."
 
 (defun setup-interface ()
   (setq ring-bell-function 'ignore)
-  (zoom-mode t)
+;;  (zoom-mode t)
   (add-to-list 'default-frame-alist '(height . 40))
   (add-to-list 'default-frame-alist '(width . 160))
   (scroll-bar-mode -1)
@@ -384,6 +384,7 @@ mapping osx's command key to meta key."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ecb-options-version "2.50")
  '(package-selected-packages
    (quote
     (flycheck-pycheckers flycheck-pyflakes evil evil-leader multiple-cursors exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
