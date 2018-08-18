@@ -5,7 +5,10 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	xwidgete
 	multiple-cursors
+	multi-term
+	multi-eshell
         exwm
 	sr-speedbar
 	ecb
@@ -187,6 +190,7 @@ mapping osx's command key to meta key."
 
 (defun setup-interface ()
   (setq ring-bell-function 'ignore)
+  (setq browse-url-browser-function 'xwidget-webkit-browse-url)
 ;;  (zoom-mode t)
   (add-to-list 'default-frame-alist '(height . 40))
   (add-to-list 'default-frame-alist '(width . 160))
@@ -198,6 +202,7 @@ mapping osx's command key to meta key."
   (global-visual-line-mode 1)
   (global-prettify-symbols-mode)
   (global-visual-line-mode 1)
+
   (use-package spaceline
     :config
     (setq ns-use-srgb-colorspace nil)
@@ -292,6 +297,16 @@ mapping osx's command key to meta key."
     :config
     (add-hook 'neotree-mode-hook (lambda nil (load-theme-buffer-local 'wombat (current-buffer))))
     )
+
+  (use-package xwidget
+    :config
+    (define-key xwidget-webkit-mode-map [mouse-6] 'xwidget-webkit-scroll-down)
+    (define-key xwidget-webkit-mode-map [mouse-7] 'xwidget-webkit-scroll-up)
+    (define-key xwidget-webkit-mode-map (kbd "<up>") 'xwidget-webkit-scroll-up)
+    (define-key xwidget-webkit-mode-map (kbd "<down>") 'xwidget-webkit-scroll-down)
+    )
+
+  (use-package xwidgete)
   )
 
 (defun setup-langs ()
@@ -387,7 +402,7 @@ mapping osx's command key to meta key."
  '(ecb-options-version "2.50")
  '(package-selected-packages
    (quote
-    (flycheck-pycheckers flycheck-pyflakes evil evil-leader multiple-cursors exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
+    (twittering-mode xwidgete multi-eshell multi-term flycheck-pycheckers flycheck-pyflakes evil evil-leader multiple-cursors exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
  '(session-use-package t nil (session)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
