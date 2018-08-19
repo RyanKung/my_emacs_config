@@ -5,6 +5,9 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	search-web
+	paredit
+	typescript-mode
 	xwidgete
 	multiple-cursors
 	multi-term
@@ -284,6 +287,8 @@ mapping osx's command key to meta key."
     :init
     (add-hook 'text-mode-hook 'linum-relative-mode)
     (add-hook 'prog-mode-hook 'linum-relative-mode)
+    (add-hook 'typescript-mode-hook 'linum-relative-mode)
+
     (global-hl-line-mode t))
 
 
@@ -307,6 +312,15 @@ mapping osx's command key to meta key."
     )
 
   (use-package xwidgete)
+
+  (use-package search-web
+    :config
+    (require 'search-web)
+    (global-set-key (kbd "C-c w") 'search-web)
+    (defun browse-url-default-browser (url &rest args)
+      "Override `browse-url-default-browser' to use `xwidget-webkit' URL ARGS."
+      (xwidget-webkit-browse-url url args))
+    )
   )
 
 (defun setup-langs ()
@@ -357,8 +371,13 @@ mapping osx's command key to meta key."
     (add-to-list 'company-backends 'company-jedi)
     )
 
+  (use-package typescript-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
+    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+    )
 
-    (use-package markdown-mode
+  (use-package markdown-mode
     :config
     (add-to-list 'auto-mode-alist '("\\.mkd\\'" . markdown-mode))
     (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
@@ -394,19 +413,3 @@ mapping osx's command key to meta key."
 
 (init)
 (provide 'init)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ecb-options-version "2.50")
- '(package-selected-packages
-   (quote
-    (twittering-mode xwidgete multi-eshell multi-term flycheck-pycheckers flycheck-pyflakes evil evil-leader multiple-cursors exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
- '(session-use-package t nil (session)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
