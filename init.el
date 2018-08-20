@@ -2,9 +2,11 @@
 ;;; Commentary:
 ;;; Code:
 
+(setq evil-want-abbrev-expand-on-insert-exit nil)
 (setq package-selected-packages
       '(evil
 	evil-leader
+	company-coq
 	search-web
 	paredit
 	typescript-mode
@@ -81,6 +83,8 @@
     )
   (el-get-bundle ProofGeneral
     :url "https://github.com/ProofGeneral/PG.git"
+    :init
+    (require 'proof-site "~/.emacs.d/el-get/ProofGeneral/generic/proof-site")
     )
   )
 
@@ -169,7 +173,9 @@ mapping osx's command key to meta key."
   (use-package dracula-theme
     :init
     (load-theme 'dracula t))
+
   (use-package evil
+    :config
     :init
     (evil-mode 1))
 
@@ -329,6 +335,8 @@ mapping osx's command key to meta key."
 (defun setup-langs ()
   "Setup langauge env."
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  (require 'proof-site "~/.emacs.d/el-get/ProofGeneral/generic/proof-site")
+
   (use-package flycheck-rust)
 
   (use-package lisp-mode
@@ -379,6 +387,10 @@ mapping osx's command key to meta key."
     (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
     )
 
+  (use-package company-coq
+    :config
+    (add-hook 'coq-mode-hook 'company-coq-mode)
+    )
   (use-package markdown-mode
     :config
     (add-to-list 'auto-mode-alist '("\\.mkd\\'" . markdown-mode))
