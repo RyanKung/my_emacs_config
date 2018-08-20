@@ -79,6 +79,9 @@
   (el-get-bundle rate-sx
     :url "https://github.com/davep/rate-sx.el.git"
     )
+  (el-get-bundle ProofGeneral
+    :url "https://github.com/ProofGeneral/PG.git"
+    )
   )
 
 
@@ -413,3 +416,4 @@ mapping osx's command key to meta key."
 
 (init)
 (provide 'init)
+;;; init.el ends here
