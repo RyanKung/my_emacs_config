@@ -329,7 +329,6 @@ mapping osx's command key to meta key."
 (defun setup-langs ()
   "Setup langauge env."
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
   (use-package flycheck-rust)
 
   (use-package lisp-mode
