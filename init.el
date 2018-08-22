@@ -6,6 +6,11 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	bongo
+	emms
+	emms-bilibili
+	go
+	go-mode
 	company-coq
 	search-web
 	paredit
@@ -330,6 +335,12 @@ mapping osx's command key to meta key."
       "Override `browse-url-default-browser' to use `xwidget-webkit' URL ARGS."
       (xwidget-webkit-browse-url url args))
     )
+  (use-package emms
+    :init
+    (require 'emms-setup)
+    (emms-standard)
+    (emms-default-players)
+    )
   )
 
 (defun setup-langs ()
@@ -407,6 +418,7 @@ mapping osx's command key to meta key."
       :config
       (setq browse-url-browser-function 'xwidget-webkit-browse-url)
       )
+    (use-package go-mode)
     (use-package writegood-mode
       :config
       (add-hook 'markdown-mode-hook writegood-mode)
