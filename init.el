@@ -6,14 +6,19 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	org-ref
+	auctex
 	bongo
 	emms
 	emms-bilibili
+	sass-mode
 	go
 	go-mode
 	company-coq
 	search-web
 	paredit
+	ranger
+	dired-ranger
 	typescript-mode
 	xwidgete
 	multiple-cursors
@@ -43,6 +48,8 @@
 	use-package
 	session
 	helm
+	helm-pydoc
+	helm-bibtexkey
 	powerline
 	spaceline
 	eyebrowse
@@ -208,6 +215,8 @@ mapping osx's command key to meta key."
 (defun setup-interface ()
   (setq ring-bell-function 'ignore)
   (setq browse-url-browser-function 'xwidget-webkit-browse-url)
+  (setq js-indent-level 2)
+  (setq doc-view-continuous t)
 ;;  (zoom-mode t)
   (add-to-list 'default-frame-alist '(height . 40))
   (add-to-list 'default-frame-alist '(width . 160))
@@ -410,8 +419,40 @@ mapping osx's command key to meta key."
     )
 
     (use-package latex-preview-pane
-      :config
+      :init
       (add-hook 'latex-mode-hook 'latex-preview-pane)
+      )
+
+    (use-package org
+      :config
+      (setq org-link-abbrev-alist
+	    '(("bib" . "~/research/refs.bib::%s")
+	      ("notes" . "~/research/notes/notes.org::#%s")
+	      ("papers" . "~/research/papers/%s.pdf")))
+      (defun org-mode-reftex-search ()
+	;;jump to the notes for the paper pointed to at from reftex search
+	(interactive)
+	(org-open-link-from-string (format "[[notes:%s]]" (first (reftex-citation t)))))
+      (define-key org-mode-map (kbd "C-c )") 'reftex-citation)
+      (define-key org-mode-map (kbd "C-c (") 'org-mode-reftex-search)
+      )
+
+    (use-package reftex
+      :config
+      ;;  https://www.anand-iyer.com/blog/2017/research-literature-management-with-emacs.html
+      ;;  https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/
+      (and (buffer-file-name) (file-exists-p (buffer-file-name))
+	   (progn
+	     (global-auto-revert-mode t)
+	     (reftex-parse-all)
+	     (reftex-set-cite-format
+	      '((?b . "[[bib:%l][%l-bib]]")
+		(?n . "[[notes:%l][%l-notes]]")
+		(?p . "[[papers:%l][%l-paper]]")
+		(?t . "%t")
+		(?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
+      (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
+      (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
       )
 
     (use-package markdown-preview-mode
