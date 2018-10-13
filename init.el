@@ -6,8 +6,14 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
-	org-ref
+	git
+	magit
+	evil-magit
+	solidity-mode
+	selectric-mode
+	haskell-mode
 	auctex
+	cargo
 	bongo
 	emms
 	emms-bilibili
@@ -20,6 +26,7 @@
 	ranger
 	dired-ranger
 	typescript-mode
+	web-mode
 	xwidgete
 	multiple-cursors
 	multi-term
@@ -43,6 +50,7 @@
 	dracula-theme
 	lsp-mode
 	lsp-ui
+	lsp-haskell
 	company-lsp
 	lsp-python
 	use-package
@@ -60,12 +68,15 @@
 	linum-relative
 	linum-off
 	rust-mode
+	realgud
+	idris-mode
 	lsp-rust
 	rust-playground
 	flycheck-rust
 	flycheck-pos-tip
 	flycheck-pyflakes
 	flycheck-pycheckers
+	flycheck-haskell
 	imenu-list
 	minimap
 	elpy
@@ -110,6 +121,7 @@
 	  ("marmalade" . "https://marmalade-repo.org/packages/")
 	  ("melpa" . "https://melpa.org/packages/")))
   (package-initialize)
+  (package-refresh-contents)
   ;; install `required package
   ;; ref https://stackoverflow.com/questions/10092322/how-to-automatically-install-emacs-packages-by-specifying-a-list-of-package-name
   (dolist (package package-selected-packages)
@@ -154,6 +166,8 @@ mapping osx's command key to meta key."
 
 (defun setup-common-packages ()
   "Ref: `https://github.com/CachesToCaches/getting_started_with_use_package/blob/master/init-use-package.el`."
+  (setq make-backup-files nil)
+(setq auto-save-default nil)
   (eval-when-compile
     (require 'use-package))
 
@@ -191,6 +205,10 @@ mapping osx's command key to meta key."
     :init
     (evil-mode 1))
 
+  (use-package yasnippet
+    :init
+    (yas-global-mode 1)
+    )
   (use-package company
     :init
     (add-hook 'after-init-hook 'global-company-mode)
@@ -209,13 +227,23 @@ mapping osx's command key to meta key."
   (use-package session
     :config
     (add-hook 'after-init-hook 'session-initialize))
+  (use-package selectric-mode
+    :config
+;;    (selectric-mode)
+    )
   )
 
-
 (defun setup-interface ()
+  (set-frame-parameter (selected-frame) 'alpha '(95 . 100))
+  (add-to-list 'default-frame-alist '(alpha . (95 . 100)))
   (setq ring-bell-function 'ignore)
   (setq browse-url-browser-function 'xwidget-webkit-browse-url)
   (setq js-indent-level 2)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq typescript-indent-level 2)
+
   (setq doc-view-continuous t)
 ;;  (zoom-mode t)
   (add-to-list 'default-frame-alist '(height . 40))
@@ -251,10 +279,15 @@ mapping osx's command key to meta key."
 
   (use-package neotree
     :config
-    (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
-    (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
-    (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
-    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+    (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+    (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+    (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+    (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+    (evil-define-key 'normal neotree-mode-map (kbd "g") 'neotree-refresh)
+    (evil-define-key 'normal neotree-mode-map (kbd "n") 'neotree-next-line)
+    (evil-define-key 'normal neotree-mode-map (kbd "p") 'neotree-previous-line)
+    (evil-define-key 'normal neotree-mode-map (kbd "A") 'neotree-stretch-toggle)
+    (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle)
     (global-set-key (kbd "M-s") 'neotree-toggle)
     (setq neo-smart-open t)
     (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -350,34 +383,68 @@ mapping osx's command key to meta key."
     (emms-standard)
     (emms-default-players)
     )
+  (use-package evil-magit)
+
+  (use-package tramp
+    :config
+    (setq tramp-default-method "sshx"))
   )
 
 (defun setup-langs ()
   "Setup langauge env."
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
   (require 'proof-site "~/.emacs.d/el-get/ProofGeneral/generic/proof-site")
 
-  (use-package flycheck-rust)
+  (use-package eldoc)
+
+  (use-package flycheck-rust
+    :config
+    (add-hook 'rust-mode-hook 'flycheck-mode)
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+    )
 
   (use-package lisp-mode
     :config
     (add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
     )
 
-  (use-package rust-mode
+  (use-package lsp-imenu
     :config
-    (add-hook 'rust-mode-hook 'racer-mode))
+    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+    )
+
+  (use-package lsp-rust
+    :config
+    (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
+    (add-hook 'rust-mode-hook 'lsp-rust-enable)
+    )
+
+  (use-package cargo
+    :init
+    (add-hook 'rust-mode-hook 'cargo-minor-mode)
+    (add-hook 'toml-mode-hook 'cargo-minor-mode))
+
+  (use-package racer
+    :config
+    (add-hook 'rust-mode-hook 'racer-mode)
+    )
+
+  (use-package rust-mode
+    :after
+    (flycheck-rust lsp-rust cargo racer))
 
   (use-package elpy
     :init
     (elpy-enable)
     :config
-    (add-hook 'python-mode-hook 'elpy-mode)
-    )
+    (add-hook 'python-mode-hook 'elpy-mode))
+
 
   (use-package lsp-python
     :config
-;;    (add-hook 'python-mode-hook 'lsp-python-enable)
+    (add-hook 'python-mode-hook 'lsp-python-enable)
     )
 
   (use-package lsp-ui
@@ -392,19 +459,20 @@ mapping osx's command key to meta key."
     (setq venv-location "/Users/ryan/Envs")
     )
 
-  (use-package virtualenv
-    :config
-    )
+  (use-package virtualenv)
 
   (use-package company-jedi
     :config
-    (add-to-list 'company-backends 'company-jedi)
-    )
+    (add-to-list 'company-backends 'company-jedi))
 
-  (use-package typescript-mode
+
+  (use-package web-mode
     :config
-    (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
-    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+    (setq web-mode-markup-indent-offset 2)
+    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+    ;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
+    ;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
     )
 
   (use-package company-coq
@@ -418,56 +486,77 @@ mapping osx's command key to meta key."
     (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
     )
 
-    (use-package latex-preview-pane
-      :init
-      (add-hook 'latex-mode-hook 'latex-preview-pane)
-      )
+  (use-package latex-preview-pane
+    :config
+    (add-hook 'latex-mode-hook 'latex-preview-pane-mode)
+    (add-hook 'LaTeX-mode-hook 'latex-preview-pane-mode))
 
-    (use-package org
-      :config
-      (setq org-link-abbrev-alist
-	    '(("bib" . "~/research/refs.bib::%s")
-	      ("notes" . "~/research/notes/notes.org::#%s")
-	      ("papers" . "~/research/papers/%s.pdf")))
-      (defun org-mode-reftex-search ()
-	;;jump to the notes for the paper pointed to at from reftex search
+  (use-package tide
+    :ensure t
+    :after (typescript-mode company flycheck)
+    :hook ((typescript-mode . tide-setup)
+           (typescript-mode . tide-hl-identifier-mode)
+           (before-save . tide-format-before-save)))
+
+  (use-package org
+    :config
+    (setq org-link-abbrev-alist
+	  '(("bib" . "~/research/refs.bib::%s")
+	    ("notes" . "~/research/notes/notes.org::#%s")
+	    ("papers" . "~/research/papers/%s.pdf")))
+    (add-to-list 'org-structure-template-alist
+		 '("s" "#+NAME: ?\n#+BEGIN_SRC \n\n#+END_SRC")
+		 '("hs" "#+NAME: ?\n#+BEGIN_SRC haskell \n\n#+END_SRC")
+		 )
+    (setq org-src-fontify-natively t)
+    (defun org-mode-reftex-search ()
+      ;;jump to the notes for the paper pointed to at from reftex search
 	(interactive)
 	(org-open-link-from-string (format "[[notes:%s]]" (first (reftex-citation t)))))
       (define-key org-mode-map (kbd "C-c )") 'reftex-citation)
       (define-key org-mode-map (kbd "C-c (") 'org-mode-reftex-search)
       )
 
-    (use-package reftex
-      :config
-      ;;  https://www.anand-iyer.com/blog/2017/research-literature-management-with-emacs.html
-      ;;  https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/
-      (and (buffer-file-name) (file-exists-p (buffer-file-name))
-	   (progn
-	     (global-auto-revert-mode t)
-	     (reftex-parse-all)
-	     (reftex-set-cite-format
-	      '((?b . "[[bib:%l][%l-bib]]")
-		(?n . "[[notes:%l][%l-notes]]")
-		(?p . "[[papers:%l][%l-paper]]")
-		(?t . "%t")
-		(?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
-      (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
-      (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
-      )
-
-    (use-package markdown-preview-mode
-      :config
-      (setq browse-url-browser-function 'xwidget-webkit-browse-url)
-      )
-    (use-package go-mode)
-    (use-package writegood-mode
-      :config
-      (add-hook 'markdown-mode-hook writegood-mode)
-      (add-hook 'org-mode-hook writegood-mode)
-      (add-hook 'latex-mode-hook writegood-mode)
-      (add-hook 'writeroom-mode writegood-mode)
-      )
+  (use-package reftex
+    :config
+    ;;  https://www.anand-iyer.com/blog/2017/research-literature-management-with-emacs.html
+    ;;  https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/
+    (and (buffer-file-name) (file-exists-p (buffer-file-name))
+	 (progn
+	   (global-auto-revert-mode t)
+	   (reftex-parse-all)
+	   (reftex-set-cite-format
+	    '((?b . "[[bib:%l][%l-bib]]")
+	      (?n . "[[notes:%l][%l-notes]]")
+	      (?p . "[[papers:%l][%l-paper]]")
+	      (?t . "%t")
+	      (?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
+    (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
     )
+
+  (use-package markdown-preview-mode
+    :config
+    (setq browse-url-browser-function 'xwidget-webkit-browse-url))
+
+  (use-package haskell-mode
+    :config
+    (require 'haskell-unicode-input-method)
+    (require 'lsp-haskell)
+    (require 'flycheck-haskell)
+    (add-hook 'haskell-mode-hook
+	      (lambda () (set-input-method "haskell-unicode")))
+    )
+  (use-package go-mode)
+  (use-package idris-mode)
+  (use-package writegood-mode
+    :config
+    (add-hook 'markdown-mode-hook writegood-mode)
+    (add-hook 'org-mode-hook writegood-mode)
+    (add-hook 'latex-mode-hook writegood-mode)
+    (add-hook 'writeroom-mode writegood-mode)
+    )
+  )
 
 (defun init ()
   "Init scripts."
@@ -478,6 +567,24 @@ mapping osx's command key to meta key."
   (setup-langs))
 
 
-(init)
+(load "server")
+(unless (server-running-p)
+  (server-start)
+  (init))
 (provide 'init)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (flycheck-haskell lsp-haskell tide web-mode evil-magit magit git evil evil-leader solidity-mode selectric-mode haskell-mode auctex cargo bongo emms emms-bilibili sass-mode go go-mode company-coq search-web paredit ranger dired-ranger typescript-mode xwidgete multiple-cursors multi-term multi-eshell exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm helm-pydoc helm-bibtexkey powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode realgud idris-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip flycheck-pyflakes flycheck-pycheckers imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
+ '(session-use-package t nil (session)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
