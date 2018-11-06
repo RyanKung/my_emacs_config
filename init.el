@@ -6,12 +6,16 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	pdf-tools
+	sclang-extensions
 	git
 	magit
 	evil-magit
 	solidity-mode
 	selectric-mode
 	haskell-mode
+	cider
+	clojure-mode
 	auctex
 	cargo
 	bongo
@@ -73,6 +77,7 @@
 	lsp-rust
 	rust-playground
 	flycheck-rust
+	flycheck-inline
 	flycheck-pos-tip
 	flycheck-pyflakes
 	flycheck-pycheckers
@@ -116,6 +121,9 @@
   "Setup package manager."
   ;; support el-get
   (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+  (add-to-list 'load-path "/usr/local/share/emacs/site-lisp")
+  (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/SuperCollider")
+
   (setq package-archives
 	'(("gnu" . "https://elpa.gnu.org/packages/")
 	  ("marmalade" . "https://marmalade-repo.org/packages/")
@@ -178,6 +186,8 @@ mapping osx's command key to meta key."
   (use-package flycheck
     :config
     (global-flycheck-mode)
+    :init
+    (flycheck-inline-mode)
     )
 
   (use-package flycheck-pycheckers
@@ -399,9 +409,11 @@ mapping osx's command key to meta key."
 
   (use-package eldoc)
 
+;;  (use-package sclang)
+
   (use-package flycheck-rust
     :config
-    (add-hook 'rust-mode-hook 'flycheck-mode)
+;;    (add-hook 'rust-mode-hook #'flycheck-mode)
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
     )
 
@@ -412,35 +424,48 @@ mapping osx's command key to meta key."
 
   (use-package lsp-imenu
     :config
-    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+    (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
     )
 
   (use-package lsp-rust
     :config
     (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
-    (add-hook 'rust-mode-hook 'lsp-rust-enable)
+    (add-hook 'rust-mode-hook #'lsp-rust-enable)
     )
 
   (use-package cargo
     :init
-    (add-hook 'rust-mode-hook 'cargo-minor-mode)
-    (add-hook 'toml-mode-hook 'cargo-minor-mode))
+    (add-hook 'rust-mode-hook #'cargo-minor-mode)
+    (add-hook 'toml-mode-hook #'cargo-minor-mode))
 
   (use-package racer
     :config
-    (add-hook 'rust-mode-hook 'racer-mode)
+    (add-hook 'rust-mode-hook #'racer-mode)
     )
 
   (use-package rust-mode
     :after
-    (flycheck-rust lsp-rust cargo racer))
+    (flycheck-rust lsp-rust cargo racer)
+    )
 
   (use-package elpy
     :init
     (elpy-enable)
     :config
-    (add-hook 'python-mode-hook 'elpy-mode))
+    (add-hook 'python-mode-hook #'elpy-mode))
 
+  (use-package lsp-mode
+    :config
+    ;; make sure we have lsp-imenu everywhere we have LSP
+    (require 'lsp-imenu)
+    (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
+    ;; get lsp-python-enable defined
+    ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+    ;;     or any other function that can be used to find the root directory of a project
+    (lsp-define-stdio-client lsp-python "python"
+                             #'projectile-project-root
+                             '("pyls"))
+    )
 
   (use-package lsp-python
     :config
@@ -448,9 +473,11 @@ mapping osx's command key to meta key."
     )
 
   (use-package lsp-ui
-    :config
+    :init
     (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-    )
+    :config
+    (setq lsp-ui-flycheck-enable nil)
+    (setq lsp-ui-sideline-ignore-duplicate t))
 
   (use-package virtualenvwrapper
     :config
@@ -492,7 +519,6 @@ mapping osx's command key to meta key."
     (add-hook 'LaTeX-mode-hook 'latex-preview-pane-mode))
 
   (use-package tide
-    :ensure t
     :after (typescript-mode company flycheck)
     :hook ((typescript-mode . tide-setup)
            (typescript-mode . tide-hl-identifier-mode)
@@ -544,6 +570,7 @@ mapping osx's command key to meta key."
     (require 'haskell-unicode-input-method)
     (require 'lsp-haskell)
     (require 'flycheck-haskell)
+    (setq haskell-stylish-on-save t)
     (add-hook 'haskell-mode-hook
 	      (lambda () (set-input-method "haskell-unicode")))
     )
@@ -573,18 +600,3 @@ mapping osx's command key to meta key."
   (init))
 (provide 'init)
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (flycheck-haskell lsp-haskell tide web-mode evil-magit magit git evil evil-leader solidity-mode selectric-mode haskell-mode auctex cargo bongo emms emms-bilibili sass-mode go go-mode company-coq search-web paredit ranger dired-ranger typescript-mode xwidgete multiple-cursors multi-term multi-eshell exwm sr-speedbar ecb zoom cedit ace-jump-mode el-get ack zone-matrix dumb-jump ctags projectile exec-path-from-shell nyan-mode zone-nyan company dracula-theme lsp-mode lsp-ui company-lsp lsp-python use-package session helm helm-pydoc helm-bibtexkey powerline spaceline eyebrowse persp-mode all-the-icons spaceline-all-the-icons linum linum-relative linum-off rust-mode realgud idris-mode lsp-rust rust-playground flycheck-rust flycheck-pos-tip flycheck-pyflakes flycheck-pycheckers imenu-list minimap elpy pyenv-mode markdown-mode+ markdown-preview-mode latex-preview-pane pandoc pandoc-mode load-theme-buffer-local solarized-theme virtualenvwrapper virtualenv company-jedi writegood-mode writeroom-mode racer company-racer)))
- '(session-use-package t nil (session)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
