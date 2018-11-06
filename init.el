@@ -440,6 +440,7 @@ mapping osx's command key to meta key."
 
   (use-package racer
     :config
+    (add-hook 'racer-mode-hook #'eldoc-mode)
     (add-hook 'rust-mode-hook #'racer-mode)
     )
 
