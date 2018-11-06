@@ -159,7 +159,10 @@ mapping osx's command key to meta key."
       "0" 'delete-window
       "1" 'delete-other-windows
       "2" 'split-window-below
-      "3" 'split-window-right)
+      "3" 'split-window-right
+      "4" 'other-window
+      "5" 'other-frame
+      )
     (evil-leader/set-leader "<SPC>")
     (global-evil-leader-mode))
   ;; https://www.emacswiki.org/emacs/YesOrNoP
