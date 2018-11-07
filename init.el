@@ -156,6 +156,8 @@ mapping osx's command key to meta key."
       "k" 'kill-buffer
       "d" 'dired
       "z" 'repeat
+      "n" 'next-buffer
+      "p" 'previous-buffer
       "0" 'delete-window
       "1" 'delete-other-windows
       "2" 'split-window-below
@@ -425,10 +427,10 @@ mapping osx's command key to meta key."
     (add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
     )
 
-  (use-package lsp-imenu
-    :config
-    (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
-    )
+  ;; (use-package lsp-imenu
+  ;;   :config
+  ;;   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
+  ;;   )
 
   (use-package lsp-rust
     :config
@@ -461,8 +463,9 @@ mapping osx's command key to meta key."
   (use-package lsp-mode
     :config
     ;; make sure we have lsp-imenu everywhere we have LSP
-    (require 'lsp-imenu)
-    (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
+    (setq lsp-message-project-root-warning t)
+;;    (require 'lsp-imenu)
+;;    (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
     ;; get lsp-python-enable defined
     ;; NB: use either projectile-project-root or ffip-get-project-root-directory
     ;;     or any other function that can be used to find the root directory of a project
@@ -481,6 +484,8 @@ mapping osx's command key to meta key."
     (add-hook 'lsp-mode-hook 'lsp-ui-mode)
     :config
     (setq lsp-ui-flycheck-enable nil)
+    (setq lsp-ui-imenu-enable nil)
+    (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-ignore-duplicate t))
 
   (use-package virtualenvwrapper
@@ -504,6 +509,11 @@ mapping osx's command key to meta key."
     (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
     ;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
     ;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+    )
+
+  (use-package pdf-tools
+    :config
+;;    (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
     )
 
   (use-package company-coq
@@ -591,6 +601,8 @@ mapping osx's command key to meta key."
 
 (defun init ()
   "Init scripts."
+  (setq debug-on-error nil)
+  (setq debug-on-quit nil)
   (setup-package-manager)
   (setup-common-packages)
   (setup-keymapping)
