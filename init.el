@@ -6,6 +6,7 @@
 (setq package-selected-packages
       '(evil
 	evil-leader
+	frame-tabs
 	pdf-tools
 	sclang-extensions
 	git
@@ -64,10 +65,10 @@
 	helm-bibtexkey
 	powerline
 	spaceline
+	spaceline-all-the-icons
 	eyebrowse
 	persp-mode
 	all-the-icons
-	spaceline-all-the-icons
 	linum
 	linum-relative
 	linum-off
@@ -114,6 +115,9 @@
     :init
     (require 'proof-site "~/.emacs.d/el-get/ProofGeneral/generic/proof-site")
     )
+  (el-get-bundle sidebar
+    :url "https://github.com/sebastiencs/sidebar.el.git"
+    )
   )
 
 
@@ -129,7 +133,7 @@
 	  ("marmalade" . "https://marmalade-repo.org/packages/")
 	  ("melpa" . "https://melpa.org/packages/")))
   (package-initialize)
-  (package-refresh-contents)
+;;  (package-refresh-contents)
   ;; install `required package
   ;; ref https://stackoverflow.com/questions/10092322/how-to-automatically-install-emacs-packages-by-specifying-a-list-of-package-name
   (dolist (package package-selected-packages)
@@ -249,6 +253,7 @@ mapping osx's command key to meta key."
   )
 
 (defun setup-interface ()
+  (define-key global-map [ns-drag-file] 'ns-find-file)
   (set-frame-parameter (selected-frame) 'alpha '(95 . 100))
   (add-to-list 'default-frame-alist '(alpha . (95 . 100)))
   (setq ring-bell-function 'ignore)
@@ -258,6 +263,7 @@ mapping osx's command key to meta key."
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
   (setq typescript-indent-level 2)
+  (set-face-attribute 'mode-line nil  :height 120)
 
   (setq doc-view-continuous t)
 ;;  (zoom-mode t)
@@ -272,10 +278,50 @@ mapping osx's command key to meta key."
   (global-prettify-symbols-mode)
   (global-visual-line-mode 1)
 
+;;  (use-package sidebar)
+  (use-package spaceline-all-the-icons
+    :after spaceline
+    :config
+    (setq spaceline-all-the-icons-separator-type 'arrow)
+    (spaceline-all-the-icons-theme)
+    ;; (spaceline-all-the-icons--setup-git-ahead)
+    ;; (spaceline-all-the-icons--setup-package-updates)
+    ;; (spaceline-all-the-icons--setup-anzu)
+    )
+
+  (use-package frame-tabs
+    :config
+    (setq frame-tabs-max-size 1)
+    (setq frame-tabs-min-size 1)
+    (setq frame-tabs-mode t)
+    (setq frame-tabs-side (quote bottom))
+    (custom-set-faces
+     '(frame-tabs-buffer-tab
+       ((t (:background "black" :foreground "white" :box (:line-width 3 :color "black") :underline t))))
+     '(frame-tabs-selected-tab
+       ((t (:inherit frame-tabs-buffer-tab :background "purple" :box (:line-width 3 :color "purple") :underline t))))
+     '(frame-tabs-highlight-tab
+       ((t (:inherit frame-tabs-buffer-tab :background "purple" :box (:line-width 3 :color "purple") :underline t))))
+     )
+    (defun filter (buffer _frame)
+      "Default filter function for frame tabs."
+      (let ((name (buffer-name buffer)))
+	(unless (or (eq (aref name 0) ?\*) (eq (aref name 0) ?\s))
+	  name)
+	))
+    (setq frame-tabs-filter-function 'filter)
+    :init
+    (frame-tabs-mode)
+  )
+
   (use-package spaceline
     :config
-    (setq ns-use-srgb-colorspace nil)
-    (setq spaceline-responsive nil)
+    (require 'all-the-icons)
+    (require 'spaceline-config)
+    (setq inhibit-compacting-font-caches t)
+    (setq ns-use-srgb-colorspace t)
+    (setq powerline-image-apple-rgb t)
+    (setq spaceline-responsive t)
     )
 
   (use-package undo-tree
@@ -308,14 +354,6 @@ mapping osx's command key to meta key."
     (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
     )
 
-  (use-package spaceline-all-the-icons
-    :after
-    spaceline
-    :config
-    (setq powerline-scale 1)
-    :init
-    (set-face-attribute 'mode-line nil  :height 120)
-    (spaceline-all-the-icons-theme))
 
   (use-package ecb)
 
@@ -365,9 +403,10 @@ mapping osx's command key to meta key."
 
   (use-package nyan-mode
     :config
-    (setq nyan-wavy-trail t)
+    (setq nyan-wavy-trail nil)
     :init
-    (nyan-mode))
+    (nyan-mode)
+    )
 
   (use-package load-theme-buffer-local
     :config
@@ -418,7 +457,8 @@ mapping osx's command key to meta key."
 
   (use-package flycheck-rust
     :config
-;;    (add-hook 'rust-mode-hook #'flycheck-mode)
+    ;;    (add-hook 'rust-mode-hook #'flycheck-mode)
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
     )
 
@@ -483,10 +523,14 @@ mapping osx's command key to meta key."
     :init
     (add-hook 'lsp-mode-hook 'lsp-ui-mode)
     :config
-    (setq lsp-ui-flycheck-enable nil)
-    (setq lsp-ui-imenu-enable nil)
-    (setq lsp-ui-doc-enable nil)
-    (setq lsp-ui-sideline-ignore-duplicate t))
+    (setq lsp-ui-sideline-enable t
+          lsp-ui-doc-enable t
+	  lsp-ui-peek-enable t
+          lsp-ui-flycheck-enable nil
+	  lsp-print-io nil
+          lsp-ui-sideline-show-flycheck t
+          lsp-ui-imenu-enable t
+          lsp-ui-sideline-ignore-duplicate t))
 
   (use-package virtualenvwrapper
     :config
